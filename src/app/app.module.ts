@@ -6,13 +6,13 @@ import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatMenuModule, MatIconModule, MatToolbarModule, MatTableModule, MatButtonModule, MatChipsModule, MatDialogModule, MAT_DIALOG_DEFAULT_OPTIONS, MatFormFieldModule, MatInputModule, MatCheckboxModule, MatDividerModule } from '@angular/material';
 import { HttpClientModule } from '@angular/common/http';
-import { CreateNewResourceDialog } from './create-new-resource-dialog/create-new-resource-dialog';
+import { EditResourceDialog } from './edit-resource-dialog/edit-resource-dialog';
 import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
     AppComponent,
-    CreateNewResourceDialog
+    EditResourceDialog
   ],
   imports: [
     BrowserModule,
@@ -33,7 +33,7 @@ import { FormsModule } from '@angular/forms';
     MatDividerModule
   ],
   entryComponents: [
-    CreateNewResourceDialog
+    EditResourceDialog
   ],
   providers: [
     {provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: {hasBackdrop: false}}

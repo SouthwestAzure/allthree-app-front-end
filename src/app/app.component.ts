@@ -1,10 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../environments/environment';
-import { MatDialog } from '@angular/material';
-import { CreateNewResourceDialog, NewResource } from './create-new-resource-dialog/create-new-resource-dialog';
+import { MatDialog, MatTable } from '@angular/material';
+import { EditResourceDialog } from './edit-resource-dialog/edit-resource-dialog';
 import { Resource } from './shared/models';
 
 @Component({
@@ -14,11 +14,11 @@ import { Resource } from './shared/models';
 })
 export class AppComponent {
 
-  title = 'Azure Resources';
-
-  displayedColumns: string[] = ['id', 'title', 'technologies', 'categories'];
-
+  public title = 'Azure Resources';
+  public displayedColumns: string[] = ['id', 'title', 'technologies', 'categories'];
   public dataSource: Resource[] = [];
+
+  @ViewChild(MatTable) table: MatTable<any>;
 
   constructor(
     private http: HttpClient,
@@ -40,19 +40,50 @@ export class AppComponent {
       );
   }
 
-  public openDialog(): void {
+  private saveResource(resource: Resource): Observable<Resource> {
 
-    const dialogRef = this.dialog.open(CreateNewResourceDialog);
+    const url = `${environment.resourceBackendUrl}/api/resources`;
 
-    dialogRef.afterClosed().subscribe((result: NewResource) => {
+    return this.http
+      .post<Resource>(url, resource)
+      .pipe(
+          catchError(this.handleError<Resource>('saveNewResource', resource))
+      );
+  }
+
+  public openDialog(editResource: Resource): void {
+
+    // If we're creating a new resource, initialize it here. Otherwise use the one passed in
+    var copy = editResource ? JSON.parse(JSON.stringify(editResource)) : new Resource();
+
+    // editResource = editResource || new Resource();
+
+    const dialogRef = this.dialog.open(EditResourceDialog, { data: copy });
+
+    dialogRef.afterClosed().subscribe((result: Resource) => {
 
       // Check whether the dialog was saved (it has a result), or cancelled (null)
       if (result) {
         
         console.log(`The dialog was saved with title = '${result.title}'`);
 
-        // TODO: Save the new item to the database now
-        var newResource = result;
+        // Save the new item to the database now
+        this.saveResource(result).subscribe(resource => {
+
+          // if (!result.id) {
+          //   this.dataSource.push(resource);
+          // }
+          
+          var index = this.dataSource.indexOf(editResource);
+          if (index !== -1) {
+            this.dataSource[index] = resource;
+          }
+          else {
+            this.dataSource.push(resource);
+          }
+          
+          this.table.renderRows();
+        });
       }
       else {
         console.log('The dialog was cancelled');
