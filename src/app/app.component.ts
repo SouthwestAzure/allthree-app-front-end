@@ -51,7 +51,7 @@ export class AppComponent {
       );
   }
 
-  public openDialog(editResource: Resource): void {
+  public openDialog(editResource?: Resource): void {
 
     // If we're creating a new resource, initialize it here. Otherwise use the one passed in
     var copy = editResource ? JSON.parse(JSON.stringify(editResource)) : new Resource();
