@@ -3,15 +3,17 @@
 # Add steps that use Docker Compose, tag images, push to a registry, run an image, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/docker
 
-trigger:
-- master
-
 pool:
-  vmImage: 'Ubuntu-16.04'
+  vmImage: 'Ubuntu 16.04'
 
 variables:
-  imageName: 'your-container-image-name:$(build.buildId)'
+  repositoryName: '$(dockerId).azurecr.io/$(imageName)'
+  tagged: '$(repositoryName):$(Build.BuildId)'
 
 steps:
-- script: docker build -f Dockerfile -t $(imageName) .
-  displayName: 'docker build'
+- script: | 
+    docker login -u $(dockerId) -p $pswd $(dockerid).azurecr.io 
+    docker build -t $(tagged) .
+    docker push $(tagged) 
+  env:
+    pswd: $(dockerPwd)
